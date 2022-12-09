@@ -40,6 +40,9 @@ module PowerEnum
       # [:freeze_members]
       #   Specifies whether individual enum instances should be frozen on database load. By default, true in production.
       #   Can be either a lambda or a boolean.
+      # [:define_predicates]
+      #   Whether or not predicate instance methods are defined on enum instances. For example, +BookingStatus#confirmed?+
+      #   is defined if this flag is +true+. Defaults to +false+.
       #
       # === Examples
       #

@@ -637,6 +637,26 @@ describe 'acts_as_enumerated' do
 
   end
 
+  describe "define_predicates" do
+    context "flag is set to true on enum class" do
+      let(:booking_status) { BookingStatus[:confirmed] }
+
+      it "defines predicate instance methods" do
+        expect(booking_status.confirmed?).to eq true
+        expect(booking_status.rejected?).to  eq false
+      end
+    end
+
+    context "flag is not set on enum class" do
+      let(:fruit) { Fruit[:apple] }
+
+      it "does not define predicate instance methods" do
+        expect(Fruit.method_defined?(:apple?)).to eq false
+        expect(fruit.respond_to?(:apple?)).to     eq false
+      end
+    end
+  end
+
   context 'when class methods are used as scopes' do
     before { State.enumeration_model_updates_permitted = true  }
     after  { State.enumeration_model_updates_permitted = false }
