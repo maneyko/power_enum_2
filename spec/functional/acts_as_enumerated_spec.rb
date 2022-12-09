@@ -637,7 +637,7 @@ describe 'acts_as_enumerated' do
 
   end
 
-  describe "define_predicates" do
+  describe "predicates" do
     context "flag is set to true on enum class" do
       let(:booking_status) { BookingStatus[:confirmed] }
 

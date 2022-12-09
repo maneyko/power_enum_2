@@ -40,7 +40,7 @@ module PowerEnum
       # [:freeze_members]
       #   Specifies whether individual enum instances should be frozen on database load. By default, true in production.
       #   Can be either a lambda or a boolean.
-      # [:define_predicates]
+      # [:predicates]
       #   Whether or not predicate instance methods are defined on enum instances. For example, +BookingStatus#confirmed?+
       #   is defined if this flag is +true+. Defaults to +false+.
       #
@@ -76,10 +76,10 @@ module PowerEnum
       #                       :on_lookup_failure => lambda { |arg| raise CustomError, "BookingStatus lookup failed; #{arg}" },
       #                       :name_column       => :status_code,
       #                       :freeze_members    => true,
-      #                       :define_predicates => true
+      #                       :predicates => true
       #  end
       def acts_as_enumerated(options = {})
-        valid_keys = [:conditions, :order, :on_lookup_failure, :name_column, :alias_name, :freeze_members, :define_predicates]
+        valid_keys = [:conditions, :order, :on_lookup_failure, :name_column, :alias_name, :freeze_members, :predicates]
         options.assert_valid_keys(*valid_keys)
 
         valid_keys.each do |key|
@@ -137,7 +137,7 @@ module PowerEnum
           validates acts_enumerated_name_column, :presence => true, :uniqueness => true
           validate :validate_enumeration_model_updates_permitted
 
-          if self.acts_enumerated_define_predicates
+          if self.acts_enumerated_predicates
             self.all.each do |enum_record|
               define_method("#{enum_record.name}?") do
                 self === enum_record
