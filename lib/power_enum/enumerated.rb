@@ -40,9 +40,13 @@ module PowerEnum
       # [:freeze_members]
       #   Specifies whether individual enum instances should be frozen on database load. By default, true in production.
       #   Can be either a lambda or a boolean.
+      # [:names]
+      #   Specify the names that are in the enum. This is the only way custom instance methods that use the enum
+      #   names can be created; i.e. the +predicates+ flag.
       # [:predicates]
-      #   Whether or not predicate instance methods are defined on enum instances. For example, +BookingStatus#confirmed?+
-      #   is defined if this flag is +true+. Defaults to +false+.
+      #   Whether or not predicate instance methods should be defined. For example, +BookingStatus#confirmed?+
+      #   is defined if this flag is +true+. Defaults to +false+. The +names+ option needs to be used in order 
+      #   for this flag to take effect.
       #
       # === Examples
       #
@@ -76,10 +80,11 @@ module PowerEnum
       #                       :on_lookup_failure => lambda { |arg| raise CustomError, "BookingStatus lookup failed; #{arg}" },
       #                       :name_column       => :status_code,
       #                       :freeze_members    => true,
-      #                       :predicates => true
+      #                       :names             => %i[confirmed received rejected],
+      #                       :predicates        => true
       #  end
       def acts_as_enumerated(options = {})
-        valid_keys = [:conditions, :order, :on_lookup_failure, :name_column, :alias_name, :freeze_members, :predicates]
+        valid_keys = [:conditions, :order, :on_lookup_failure, :name_column, :alias_name, :freeze_members, :names, :predicates]
         options.assert_valid_keys(*valid_keys)
 
         valid_keys.each do |key|
@@ -145,8 +150,8 @@ module PowerEnum
             alias_method :name, :__enum_name__
           end
 
-          if self.acts_enumerated_predicates
-            self.names.each do |record_name|
+          if self.acts_enumerated_predicates && self.acts_enumerated_names
+            self.acts_enumerated_names.each do |record_name|
               define_method("#{record_name}?") do
                 self === record_name
               end
