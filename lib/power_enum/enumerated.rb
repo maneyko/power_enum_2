@@ -137,20 +137,20 @@ module PowerEnum
           validates acts_enumerated_name_column, :presence => true, :uniqueness => true
           validate :validate_enumeration_model_updates_permitted
 
-          if self.acts_enumerated_predicates
-            self.all.each do |enum_record|
-              define_method("#{enum_record.name}?") do
-                self === enum_record
-              end
-            end
-          end
-
           define_method :__enum_name__ do
             read_attribute(acts_enumerated_name_column).to_s
           end
 
           if should_alias_name?(options) && acts_enumerated_name_column != :name
             alias_method :name, :__enum_name__
+          end
+
+          if self.acts_enumerated_predicates
+            self.names.each do |record_name|
+              define_method("#{record_name}?") do
+                self === record_name
+              end
+            end
           end
         end # class_eval
 
