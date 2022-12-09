@@ -72,10 +72,11 @@ module PowerEnum
       #                       :order             => 'created_at DESC',
       #                       :on_lookup_failure => lambda { |arg| raise CustomError, "BookingStatus lookup failed; #{arg}" },
       #                       :name_column       => :status_code,
-      #                       :freeze_members    => true
+      #                       :freeze_members    => true,
+      #                       :define_predicates => true
       #  end
       def acts_as_enumerated(options = {})
-        valid_keys = [:conditions, :order, :on_lookup_failure, :name_column, :alias_name, :freeze_members]
+        valid_keys = [:conditions, :order, :on_lookup_failure, :name_column, :alias_name, :freeze_members, :define_predicates]
         options.assert_valid_keys(*valid_keys)
 
         valid_keys.each do |key|
@@ -132,6 +133,14 @@ module PowerEnum
           before_destroy :enumeration_model_update
           validates acts_enumerated_name_column, :presence => true, :uniqueness => true
           validate :validate_enumeration_model_updates_permitted
+
+          if self.acts_enumerated_define_predicates
+            self.all.each do |enum_record|
+              define_method("#{enum_record.name}?") do
+                self === enum_record
+              end
+            end
+          end
 
           define_method :__enum_name__ do
             read_attribute(acts_enumerated_name_column).to_s
